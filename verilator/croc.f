@@ -169,6 +169,7 @@
 ../rtl/clint/clint_reg_pkg.sv
 ../rtl/obi_timer/obi_timer_reg_pkg.sv
 ../rtl/core_wrap.sv
+../rtl/cvxif_domain.sv
 ../rtl/bootrom/bootrom.sv
 ../rtl/soc_ctrl/soc_ctrl_regs.sv
 ../rtl/gpio/gpio_reg_top.sv

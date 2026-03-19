@@ -217,6 +217,19 @@ module croc_domain import croc_pkg::*; #(
   // -----------------
   // Core
   // -----------------
+
+  // CV-X-IF signals between core_wrap and cvxif_domain
+  logic                    x_issue_valid;
+  logic                    x_issue_ready;
+  cve2_pkg::x_issue_req_t  x_issue_req;
+  cve2_pkg::x_issue_resp_t x_issue_resp;
+  cve2_pkg::x_register_t   x_register;
+  logic                    x_commit_valid;
+  cve2_pkg::x_commit_t     x_commit;
+  logic                    x_result_valid;
+  logic                    x_result_ready;
+  cve2_pkg::x_result_t     x_result;
+
   core_wrap #(
   ) i_core_wrap (
     .clk_i,
@@ -248,7 +261,37 @@ module croc_domain import croc_pkg::*; #(
 
     .debug_req_i    ( debug_req    ),
     .fetch_enable_i ( fetch_enable ),
-    .core_busy_o    ( core_busy_o  )
+    .core_busy_o    ( core_busy_o  ),
+
+    .x_issue_valid_o ( x_issue_valid ),
+    .x_issue_ready_i ( x_issue_ready ),
+    .x_issue_req_o   ( x_issue_req   ),
+    .x_issue_resp_i  ( x_issue_resp  ),
+    .x_register_o    ( x_register    ),
+    .x_commit_valid_o( x_commit_valid),
+    .x_commit_o      ( x_commit      ),
+    .x_result_valid_i( x_result_valid),
+    .x_result_ready_o( x_result_ready),
+    .x_result_i      ( x_result      )
+  );
+
+  // -----------------
+  // CV-X-IF Domain
+  // -----------------
+  cvxif_domain i_cvxif_domain (
+    .clk_i,
+    .rst_ni,
+
+    .x_issue_valid_i ( x_issue_valid ),
+    .x_issue_ready_o ( x_issue_ready ),
+    .x_issue_req_i   ( x_issue_req   ),
+    .x_issue_resp_o  ( x_issue_resp  ),
+    .x_register_i    ( x_register    ),
+    .x_commit_valid_i( x_commit_valid),
+    .x_commit_i      ( x_commit      ),
+    .x_result_valid_o( x_result_valid),
+    .x_result_ready_i( x_result_ready),
+    .x_result_o      ( x_result      )
   );
 
   // -----------------

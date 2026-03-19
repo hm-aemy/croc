@@ -77,7 +77,19 @@ module core_wrap import croc_pkg::*; #() (
   input  logic        fetch_enable_i,
 
   // core_busy_o: power-management hint to the SoC; drive 1'b0 if not available
-  output logic        core_busy_o
+  output logic        core_busy_o,
+
+  // Core-V Extension Interface (CV-X-IF)
+  output logic                    x_issue_valid_o,
+  input  logic                    x_issue_ready_i,
+  output cve2_pkg::x_issue_req_t  x_issue_req_o,
+  input  cve2_pkg::x_issue_resp_t x_issue_resp_i,
+  output cve2_pkg::x_register_t   x_register_o,
+  output logic                    x_commit_valid_o,
+  output cve2_pkg::x_commit_t     x_commit_o,
+  input  logic                    x_result_valid_i,
+  output logic                    x_result_ready_o,
+  input  cve2_pkg::x_result_t     x_result_i
 );
 
   // CVE2: debug halt/exception vectors are provided as runtime inputs.
@@ -93,15 +105,6 @@ module core_wrap import croc_pkg::*; #() (
   logic [31:0] boot_addr_masked;
   assign boot_addr_masked = boot_addr_i & 32'hFFFFFF00;
 
-  // CV-X-IF tie-offs: CVE2-specific co-processor extension interface, disabled here.
-  // Remove this block entirely when replacing CVE2 with another core.
-  // If you want to use CV-X-IF, instantiate your accelerator here and connect the x_* signals.
-  cve2_pkg::x_issue_resp_t x_issue_resp;
-  cve2_pkg::x_result_t     x_result;
-  always_comb begin
-    x_issue_resp = '0;
-    x_result     = '0;
-  end
 
 `ifdef TRACE_EXECUTION
   cve2_core_tracing #(
@@ -118,7 +121,7 @@ module core_wrap import croc_pkg::*; #() (
     .RV32B            ( cve2_pkg::RV32BNone ),
     .DbgTriggerEn     ( 1'b1                ),
     .DbgHwBreakNum    ( 1                   ),
-    .XInterface       ( 1'b0                )
+    .XInterface       ( 1'b1                )
   ) i_core (
     .clk_i,
     .rst_ni,
@@ -146,16 +149,16 @@ module core_wrap import croc_pkg::*; #() (
     .data_err_i,
 
     // Core-V Extension Interface (CV-X-IF):
-    .x_issue_valid_o     (),
-    .x_issue_ready_i     ( 1'b1 ),
-    .x_issue_req_o       (),
-    .x_issue_resp_i      ( x_issue_resp ),
-    .x_register_o        (),
-    .x_commit_valid_o    (),
-    .x_commit_o          (),
-    .x_result_valid_i    ( 1'b0 ),
-    .x_result_ready_o    (),
-    .x_result_i          ( x_result ),
+    .x_issue_valid_o,
+    .x_issue_ready_i,
+    .x_issue_req_o,
+    .x_issue_resp_i,
+    .x_register_o,
+    .x_commit_valid_o,
+    .x_commit_o,
+    .x_result_valid_i,
+    .x_result_ready_o,
+    .x_result_i,
 
     // Interrupts
     .irq_software_i      ( software_irq_i ),
